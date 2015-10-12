@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Assets.Script;
 
 public class Shatter : MonoBehaviour
@@ -9,6 +10,7 @@ public class Shatter : MonoBehaviour
     private Transform piecesContainer;
     private Transform piecesGlobal;
     private readonly string PIECES_GLOBAL = "PiecesGlobal";
+    private List<Object> gravityObjects;
 
     // Use this for initialization
     void Start()
@@ -16,15 +18,9 @@ public class Shatter : MonoBehaviour
         piecesGlobal = GameObject.Find(PIECES_GLOBAL).transform;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     void OnMouseDown()
     {
-        ShatterFromCenter(1);
+        ShatterFromCenter(5);
     }
 
     /// <summary>
@@ -34,7 +30,7 @@ public class Shatter : MonoBehaviour
     {
         get
         {
-            return GetComponent<SphereCollider>().radius * transform.localScale.x;
+            return GetComponent<CircleCollider2D>().radius * transform.localScale.x;
         }
     }
 
@@ -58,12 +54,13 @@ public class Shatter : MonoBehaviour
     {
         CreateSubPieces();
 
-        var currentVelocity = GetComponent<Rigidbody>().velocity;
-        foreach (var piece in piecesContainer.GetComponentsInChildren<Rigidbody>())
+        var currentVelocity = GetComponent<Rigidbody2D>().velocity;
+        foreach (var piece in piecesContainer.GetComponentsInChildren<Rigidbody2D>())
         {
-            piece.AddForce((piece.transform.position - transform.position) * shatterStrength + currentVelocity, ForceMode.Impulse);
+            piece.AddForce(((piece.transform.position - transform.position) * shatterStrength + new Vector3(currentVelocity.x, currentVelocity.y, 0)), ForceMode2D.Impulse);
         }
 
+        GravityGlobal.RemoveGravityObject(gameObject);
         Destroy(gameObject);
     }
 
@@ -110,7 +107,6 @@ public class Shatter : MonoBehaviour
         {
             var newPiece = InstantiateScaledBall();
             newPiece.transform.position = transform.position + point;
-            newPiece.transform.parent = piecesContainer;
         }
     }
 
@@ -122,6 +118,8 @@ public class Shatter : MonoBehaviour
     {
         var newPiece = Instantiate(subPiece);
         newPiece.transform.localScale = transform.localScale * shatterRatio;
+        newPiece.transform.parent = piecesContainer;
+        GravityGlobal.AddGravityObject(newPiece);
         return newPiece;
     }
 
@@ -137,4 +135,5 @@ public class Shatter : MonoBehaviour
         var angleBetweenBalls = Utility.GetAngleBInTriangleViaThreeSides(radiusOfLayer, distanceBetweenTwoBalls, radiusOfLayer);
         return Mathf.RoundToInt(360 / angleBetweenBalls);
     }
+
 }
