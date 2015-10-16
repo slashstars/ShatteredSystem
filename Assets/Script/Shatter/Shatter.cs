@@ -85,7 +85,7 @@ public class Shatter : MonoBehaviour
     /// Subspheres are forced outward from current sphere's center.
     /// </summary>
     /// <param name="shatterStrength">Magnitude of force scattering the subsphere.</param>
-    private void ShatterFromCenter(float shatterStrength)
+    public void ShatterFromCenter(float shatterStrength)
     {
         CreateSubPieces();
 

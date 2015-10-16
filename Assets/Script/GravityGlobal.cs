@@ -63,7 +63,10 @@ public class GravityGlobal : MonoBehaviour
                 continue;
 
             var gravityPullDirection = currentPosition - gravityObjects[i].transform.position;
+
+            //print("About to add force with mass " + mass + " to:" + gravityObjects[i].transform.name);
             gravityObjects[i].body.AddForce(gravityPullDirection.normalized * G * mass / Mathf.Pow(distance, 2));
+
         }
     }
 }
