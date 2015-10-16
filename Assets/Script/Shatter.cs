@@ -6,23 +6,27 @@ using Assets.Script;
 public class Shatter : MonoBehaviour
 {
     public float shatterRatio;
+    public float shatterForce;
     public GameObject subPiece;
     private Transform piecesContainer;
     private Transform piecesGlobal;
     private readonly string PIECES_GLOBAL = "PiecesGlobal";
-    private List<Object> gravityObjects;
+    private Rigidbody2D body;
+    private int totalNumberOfCreatedSubPieces = 0;
 
     // Use this for initialization
     void Start()
     {
+        body = GetComponent<Rigidbody2D>();
         piecesGlobal = GameObject.Find(PIECES_GLOBAL).transform;
     }
 
     void OnMouseDown()
     {
-        ShatterFromCenter(5);
+        ShatterFromCenter(shatterForce);
     }
 
+    private float radius = -1;
     /// <summary>
     /// Radius of the sphere object.
     /// </summary>
@@ -30,10 +34,13 @@ public class Shatter : MonoBehaviour
     {
         get
         {
-            return GetComponent<CircleCollider2D>().radius * transform.localScale.x;
+            if (radius < 0)
+                radius = GetComponent<CircleCollider2D>().radius * transform.localScale.x;
+            return radius;
         }
     }
 
+    private float newPieceRadius = -1;
     /// <summary>
     /// Calculated radius of subspheres afer current sphere is "shattered".
     /// </summary>
@@ -41,7 +48,35 @@ public class Shatter : MonoBehaviour
     {
         get
         {
-            return Radius * shatterRatio;
+            if (newPieceRadius < 0)
+                newPieceRadius = Radius * shatterRatio;
+            return newPieceRadius;
+        }
+    }
+
+    private float newPieceMass = -1;
+    /// <summary>
+    /// Calculate the mass of subspheres after current sphere is "shattered".
+    /// </summary>
+    private float NewPieceMass
+    {
+        get
+        {
+            if (newPieceMass < 0)
+                newPieceMass = body.mass / NewPiecesCount;
+
+            return newPieceMass;
+        }
+    }
+
+    private int newPiecesCount = -1;
+    private int NewPiecesCount
+    {
+        get
+        {
+            if (newPiecesCount < 0)
+                newPiecesCount = CalculateNumberOfSubPieces();
+            return newPiecesCount;
         }
     }
 
@@ -50,14 +85,16 @@ public class Shatter : MonoBehaviour
     /// Subspheres are forced outward from current sphere's center.
     /// </summary>
     /// <param name="shatterStrength">Magnitude of force scattering the subsphere.</param>
-    private void ShatterFromCenter(int shatterStrength)
+    private void ShatterFromCenter(float shatterStrength)
     {
         CreateSubPieces();
 
-        var currentVelocity = GetComponent<Rigidbody2D>().velocity;
+        var currentVelocity = body.velocity;
         foreach (var piece in piecesContainer.GetComponentsInChildren<Rigidbody2D>())
         {
-            piece.AddForce(((piece.transform.position - transform.position) * shatterStrength + new Vector3(currentVelocity.x, currentVelocity.y, 0)), ForceMode2D.Impulse);
+            var currentSphereVelocity = new Vector3(currentVelocity.x, currentVelocity.y, 0);
+            var calculatedSubpiecesVelocity = currentSphereVelocity / newPiecesCount;
+            piece.AddForce(((piece.transform.position - transform.position) * shatterStrength + calculatedSubpiecesVelocity), ForceMode2D.Impulse);
         }
 
         GravityGlobal.RemoveGravityObject(gameObject);
@@ -73,8 +110,8 @@ public class Shatter : MonoBehaviour
         piecesContainer = new GameObject().transform;
         piecesContainer.parent = piecesGlobal;
 
-        var numberOfCirlceLayers = Mathf.RoundToInt(Radius / NewPieceRadius / 2);
-        addBallsInLayersRecursive(numberOfCirlceLayers, Radius - NewPieceRadius);
+        var startingLayerIndex = HowManyCircleLayersAroundCenter();
+        addBallsInLayersRecursive(startingLayerIndex, Radius - NewPieceRadius);
     }
 
     /// <summary>
@@ -118,8 +155,10 @@ public class Shatter : MonoBehaviour
     {
         var newPiece = Instantiate(subPiece);
         newPiece.transform.localScale = transform.localScale * shatterRatio;
+        newPiece.GetComponent<Rigidbody2D>().mass = NewPieceMass;
         newPiece.transform.parent = piecesContainer;
         GravityGlobal.AddGravityObject(newPiece);
+        totalNumberOfCreatedSubPieces++;
         return newPiece;
     }
 
@@ -136,4 +175,30 @@ public class Shatter : MonoBehaviour
         return Mathf.RoundToInt(360 / angleBetweenBalls);
     }
 
+    /// <summary>
+    /// Calculates how many layers of subpieces will fit within the shattered sphere.
+    /// </summary>
+    /// <returns>The number of layers.</returns>
+    private int HowManyCircleLayersAroundCenter()
+    {
+        return Mathf.RoundToInt(Radius / NewPieceRadius / 2);
+    }
+
+    /// <summary>
+    /// Calculate how many subpieces of the current shatter ratio "fit" in the current sphere.
+    /// </summary>
+    /// <returns></returns>
+    private int CalculateNumberOfSubPieces()
+    {
+        int numberOfBalls = 0;
+        var currentLayerRadius = Radius - NewPieceRadius;
+
+        for (int i = 0; i < HowManyCircleLayersAroundCenter(); i++)
+        {
+            numberOfBalls += HowManyBallsInLayer(currentLayerRadius, NewPieceRadius);
+            currentLayerRadius -= NewPieceRadius * 2;
+        }
+
+        return numberOfBalls;
+    }
 }
