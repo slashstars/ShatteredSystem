@@ -21,11 +21,6 @@ public class Shatter : MonoBehaviour
         piecesGlobal = GameObject.Find(PIECES_GLOBAL).transform;
     }
 
-    void OnMouseDown()
-    {
-        ShatterFromCenter(shatterForce);
-    }
-
     private float radius = -1;
     /// <summary>
     /// Radius of the sphere object.

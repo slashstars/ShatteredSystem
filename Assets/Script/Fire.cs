@@ -47,6 +47,6 @@ public class Fire : MonoBehaviour
 
         var currentProjectile = Instantiate(projectile);
         currentProjectile.transform.position = transform.transform.position;
-        currentProjectile.GetComponent<Rocket>().Launch(directionOfFire, force);
+        currentProjectile.GetComponent<Rigidbody2D>().AddForce(Vector3.up * FireForce, ForceMode2D.Impulse);
     }
 }

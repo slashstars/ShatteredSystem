@@ -23,10 +23,10 @@ public class GravityGlobal : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        for (int i = 0; i < gravityObjects.Length; i++)
-        {
-            ApplyGravity(gravityObjects[i].transform.position, gravityObjects[i].mass);
-        }
+        //for (int i = 0; i < gravityObjects.Length; i++)
+        //{
+        //    ApplyGravity(gravityObjects[i].transform.position, gravityObjects[i].mass);
+        //}
     }
 
     public static void AddGravityObject(GameObject sphere)
@@ -44,7 +44,11 @@ public class GravityGlobal : MonoBehaviour
     {
         var objectsAsList = new List<GravityObject>();
         objectsAsList.AddRange(gravityObjects);
-        objectsAsList.RemoveAt(GetGravityObjectIndex(sphere));
+
+        var index = GetGravityObjectIndex(sphere);
+        if (index >= 0)
+            objectsAsList.RemoveAt(index);
+
         gravityObjects = objectsAsList.ToArray();
     }
 
@@ -64,9 +68,8 @@ public class GravityGlobal : MonoBehaviour
 
             var gravityPullDirection = currentPosition - gravityObjects[i].transform.position;
 
-            //print("About to add force with mass " + mass + " to:" + gravityObjects[i].transform.name);
-            gravityObjects[i].body.AddForce(gravityPullDirection.normalized * G * mass / Mathf.Pow(distance, 2));
 
+            gravityObjects[i].body.AddForce(gravityPullDirection.normalized * G * mass / Mathf.Pow(distance, 2));
         }
     }
 }
