@@ -17,6 +17,6 @@ public class CurrentLevelCounter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        counterText.text = "Level:" + Application.loadedLevel;
+        counterText.text = "Level: " + Application.loadedLevel;
     }
 }

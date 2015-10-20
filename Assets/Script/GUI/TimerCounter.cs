@@ -17,6 +17,6 @@ public class TimerCounter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        counterText.text = "Left:" + LevelTimer.levelTimer + "s";
+        counterText.text = "TimeLeft:" + Mathf.Round(LevelTimer.levelTimer) + "s";
     }
 }
