@@ -19,7 +19,6 @@ public class ShatterObstacles : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        print("Are we here");
         var obj = collision.gameObject;
         if (obj.tag == Tags.Graviton && GetObjectRadius(obj) >= shatterMin)
             obj.GetComponent<Shatter>().ShatterFromCenter(1);

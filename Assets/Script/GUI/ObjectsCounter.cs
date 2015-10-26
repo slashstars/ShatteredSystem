@@ -16,6 +16,6 @@ public class ObjectsCounter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        counterText.text = "Objects:" + GravityGlobal.gravityObjects.Length;
+        counterText.text = "Objects:" + ShatterObjectsGlobal.gravityObjects.Length;
     }
 }

@@ -92,7 +92,7 @@ public class Shatter : MonoBehaviour
             piece.AddForce(((piece.transform.position - transform.position) * shatterStrength + calculatedSubpiecesVelocity), ForceMode2D.Impulse);
         }
 
-        GravityGlobal.RemoveGravityObject(gameObject);
+        ShatterObjectsGlobal.Remove(gameObject);
         Destroy(gameObject);
     }
 
@@ -152,7 +152,7 @@ public class Shatter : MonoBehaviour
         newPiece.transform.localScale = transform.localScale * shatterRatio;
         newPiece.GetComponent<Rigidbody2D>().mass = NewPieceMass;
         newPiece.transform.parent = piecesContainer;
-        GravityGlobal.AddGravityObject(newPiece);
+        ShatterObjectsGlobal.Add(newPiece);
         totalNumberOfCreatedSubPieces++;
         return newPiece;
     }

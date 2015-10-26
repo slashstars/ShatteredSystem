@@ -5,7 +5,7 @@ public class DestroyOnInvisible : MonoBehaviour
 {
     void OnBecameInvisible()
     {
-        GravityGlobal.RemoveGravityObject(gameObject);
+        ShatterObjectsGlobal.Remove(gameObject);
         Destroy(gameObject);
     }
 }

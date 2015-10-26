@@ -55,6 +55,6 @@ public class GenerateSpheres : MonoBehaviour
         var randomSpeed = Random.Range(speedMin, speedMax);
         newSphere.GetComponent<Rigidbody2D>().gravityScale = randomSpeed;
 
-        GravityGlobal.AddGravityObject(newSphere);
+        ShatterObjectsGlobal.Add(newSphere);
     }
 }
