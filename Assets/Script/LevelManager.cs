@@ -19,6 +19,7 @@ public class LevelManager : MonoBehaviour
     {
         currentTime = totalTime;
         currentLevel = Application.loadedLevel;
+        messages = GameObject.Find(Names.ScriptRunner).GetComponent<DisplayMessage>();
     }
 
     // Update is called once per frame

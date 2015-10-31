@@ -44,17 +44,47 @@ public class GenerateSpheres : MonoBehaviour
 
     void CreateSphere()
     {
-        var newSphere = Instantiate(sphere);
-        var randomX = Random.Range(screenRangeMin, screenRangeMax);
-
-        newSphere.transform.position = new Vector3(randomX, transform.position.y, 0);
+        var newSphere = (GameObject)Instantiate(sphere, new Vector3(0, 0, -1000), new Quaternion());
 
         var randomScale = Random.Range(screenWidth * scaleMinPercent / 100, screenWidth * scaleMaxPercent / 100);
         newSphere.transform.localScale = new Vector3(randomScale, randomScale, randomScale);
 
         var randomSpeed = Random.Range(speedMin, speedMax);
         newSphere.GetComponent<Rigidbody2D>().gravityScale = randomSpeed;
+        //newSphere.GetComponent<Rigidbody2D>().AddForce(Vector3.down * randomSpeed, ForceMode2D.Impulse);
 
-        ShatterObjectsGlobal.Add(newSphere);
+        var radius = newSphere.GetComponent<Shatter>().Radius;
+
+        var nonOverlappingPosition = GetNonOverlappingRandomPosition(screenRangeMin, screenRangeMax, radius);
+
+        if (nonOverlappingPosition != null)
+        {
+            newSphere.transform.position = (Vector3)nonOverlappingPosition;
+            ShatterObjectsGlobal.Add(newSphere);
+        }
+        else
+            Destroy(newSphere);
+    }
+
+    private Vector3? GetNonOverlappingRandomPosition(float screenRangeMin, float screenRangeMax, float radius)
+    {
+        int attempts = 10;
+        Vector3? generationPoint = null;
+
+        while (attempts > 1)
+        {
+            var randomX = Random.Range(screenRangeMin, screenRangeMax);
+            var testPoint = new Vector3(randomX, transform.position.y, 0);
+            Collider2D colls = Physics2D.OverlapCircle(testPoint, radius);
+
+            if (colls == null)
+            {
+                generationPoint = testPoint;
+            }
+
+            attempts--;
+        }
+
+        return generationPoint;
     }
 }

@@ -50,5 +50,10 @@ namespace Assets.Script
 
             return coordinates;
         }
+
+        public static bool CoinToss()
+        {
+            return UnityEngine.Random.Range(0, 1) == 0;
+        }
     }
 }

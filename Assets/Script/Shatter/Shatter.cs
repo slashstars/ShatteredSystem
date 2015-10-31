@@ -25,7 +25,7 @@ public class Shatter : MonoBehaviour
     /// <summary>
     /// Radius of the sphere object.
     /// </summary>
-    private float Radius
+    public float Radius
     {
         get
         {
